@@ -10,7 +10,7 @@ class BlogsController < ApplicationController
   end
 
   def show
-    @blog = Blog.referable(current_user&.id).find(params[:id])
+    @blog = Blog.referable(current_user).find(params[:id])
   end
 
   def new
@@ -20,8 +20,7 @@ class BlogsController < ApplicationController
   def edit; end
 
   def create
-    params = current_user.premium ? blog_params_by_premium : blog_params_by_non_premium
-    @blog = current_user.blogs.new(params)
+    @blog = current_user.blogs.new(blog_params)
 
     if @blog.save
       redirect_to blog_url(@blog), notice: 'Blog was successfully created.'
@@ -31,8 +30,7 @@ class BlogsController < ApplicationController
   end
 
   def update
-    params = current_user.premium ? blog_params_by_premium : blog_params_by_non_premium
-    if @blog.update(params)
+    if @blog.update(blog_params)
       redirect_to blog_url(@blog), notice: 'Blog was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -51,8 +49,12 @@ class BlogsController < ApplicationController
     @blog = current_user.blogs.find(params[:id])
   end
 
+  def blog_params
+    current_user.premium ? blog_params_by_premium : blog_params_by_non_premium
+  end
+
   def blog_params_by_non_premium
-    params.require(:blog).permit(:title, :content)
+    params.require(:blog).permit(:title, :content, :secret)
   end
 
   def blog_params_by_premium

@@ -9,7 +9,7 @@ class Blog < ApplicationRecord
 
   scope :published, -> { where('secret = FALSE') }
 
-  scope :referable, ->(user_id) { published.or(where(user_id: user_id)) }
+  scope :referable, ->(user) { published.or(where(user: user)) }
 
   scope :search, lambda { |term|
     like_term = "%#{sanitize_sql_like(term.to_s)}%"
